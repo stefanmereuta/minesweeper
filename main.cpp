@@ -1,4 +1,5 @@
 #include <iostream>
+#include <SDL.h>
 #include "tabla.h"
 
 using namespace std;
@@ -47,7 +48,7 @@ void AfiseazaID(Tabla tabla)
     }
 }
 
-int main()
+int main(int argc, char* argv[])
 {
     Tabla t(9, 9, 10);
     int x, y;

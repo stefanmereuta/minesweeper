@@ -1,0 +1,21 @@
+# depslib dependency file v1.0
+1491935357 source:c:\users\user\documents\codeblocks\minesweeper v0\main.cpp
+	<iostream>
+	"tabla.h"
+
+1491994961 c:\users\user\documents\codeblocks\minesweeper v0\tabla.h
+	"patratel.h"
+	<list>
+	<vector>
+
+1491933054 c:\users\user\documents\codeblocks\minesweeper v0\patratel.h
+
+1491994949 source:c:\users\user\documents\codeblocks\minesweeper v0\tabla.cpp
+	"tabla.h"
+	<stdlib.h>
+	<time.h>
+	<iostream>
+
+1491933054 source:c:\users\user\documents\codeblocks\minesweeper v0\patratel.cpp
+	"patratel.h"
+
