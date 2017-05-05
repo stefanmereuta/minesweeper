@@ -31,8 +31,20 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
+			<Add directory="sdl/include/SDL2" />
 		</Compiler>
+		<Linker>
+			<Add option="-lmingw32 -lSDL2main -lSDL2 -lSDL2_image" />
+			<Add directory="sdl/lib" />
+		</Linker>
+		<Unit filename="gamemanager.cpp" />
+		<Unit filename="gamemanager.h" />
+		<Unit filename="ltexture" />
+		<Unit filename="ltexture.cpp" />
+		<Unit filename="ltexture.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="managergrafica.cpp" />
+		<Unit filename="managergrafica.h" />
 		<Unit filename="patratel.cpp" />
 		<Unit filename="patratel.h" />
 		<Unit filename="tabla.cpp" />

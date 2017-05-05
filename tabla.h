@@ -25,6 +25,7 @@ public:
     static int grup;
     void show();
 
+    Tabla();
     Tabla(int inaltime, int latime, int nr_bombe);
 
     const int getInaltime();

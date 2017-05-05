@@ -1,10 +1,16 @@
 #include "tabla.h"
-
 #include <stdlib.h>
 #include <time.h>
 #include <iostream> //doar pt debugging
 
 int Tabla::grup = 1;
+
+Tabla::Tabla()
+{
+    m_PatrateVizibile = 0;
+    m_Inaltime = 0;
+    m_Latime = 0;
+}
 
 Tabla::Tabla(int inaltime, int latime, int nr_bombe)
 {
