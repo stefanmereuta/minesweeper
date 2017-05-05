@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1493967775 source:c:\users\user\documents\codeblocks\minesweeper v0\main.cpp
+1494010673 source:c:\users\user\documents\codeblocks\minesweeper v0\main.cpp
 	<iostream>
 	<stdio.h>
 	<SDL.h>
@@ -8,20 +8,20 @@
 	"ltexture.h"
 	"managerjoc.h"
 
-1493804044 c:\users\user\documents\codeblocks\minesweeper v0\tabla.h
+1494004600 c:\users\user\documents\codeblocks\minesweeper v0\tabla.h
 	"patratel.h"
 	<list>
 	<vector>
 
-1491933054 c:\users\user\documents\codeblocks\minesweeper v0\patratel.h
+1493968649 c:\users\user\documents\codeblocks\minesweeper v0\patratel.h
 
-1493757864 source:c:\users\user\documents\codeblocks\minesweeper v0\tabla.cpp
+1494010672 source:c:\users\user\documents\codeblocks\minesweeper v0\tabla.cpp
 	"tabla.h"
 	<stdlib.h>
 	<time.h>
 	<iostream>
 
-1491933054 source:c:\users\user\documents\codeblocks\minesweeper v0\patratel.cpp
+1494006498 source:c:\users\user\documents\codeblocks\minesweeper v0\patratel.cpp
 	"patratel.h"
 
 1476939494 c:\users\user\documents\codeblocks\minesweeper v0\sdl\include\sdl2\sdl.h
@@ -349,7 +349,7 @@
 	<SDL_image.h>
 	<stdio.h>
 
-1493967775 source:c:\users\user\documents\codeblocks\minesweeper v0\ltexture.cpp
+1494008138 source:c:\users\user\documents\codeblocks\minesweeper v0\ltexture.cpp
 	"ltexture.h"
 	"managerjoc.h"
 	<stdio.h>
@@ -371,9 +371,17 @@
 1493967775 c:\users\user\documents\codeblocks\minesweeper v0\managergrafica.h
 	"ltexture.h"
 
-1493967815 c:\users\user\documents\codeblocks\minesweeper v0\managerjoc.h
+1494009579 c:\users\user\documents\codeblocks\minesweeper v0\managerjoc.h
 	<SDL.h>
 	<SDL_image.h>
 	"tabla.h"
 	"ltexture.h"
+
+1494010672 source:c:\users\user\documents\codeblocks\minesweeper v0\managerjoc.cpp
+	"managerjoc.h"
+	"managergrafica.h"
+	<SDL.h>
+	<SDL_image.h>
+	<stdio.h>
+	<iostream>
 

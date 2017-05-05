@@ -8,25 +8,27 @@
 
 class Tabla
 {
-    int m_Inaltime, m_Latime, m_PatrateVizibile, m_NrBombe;
+    int m_Inaltime, m_Latime, m_PatrateVizibile, m_NrBombe, m_GrupNou;
     std::vector<std::list<int> > m_Grupuri;
 
     bool validCoords(int x, int y);
     void updateNumber(int x, int y);
     void spawnMines(int nr);
     void grupeazaPatratele();
-    void floodFill(int x, int y, int grup);
+    void floodFill(int x, int y);
     Patratel* getSquare(int ID);
 
 public:
     std::vector<std::vector<Patratel> > m_Tabla;
     //Patratel **m_Tabla;
 
-    static int grup;
+    //static int grup;
     void show();
 
     Tabla();
     Tabla(int inaltime, int latime, int nr_bombe);
+
+    void reset(int inaltime, int latime, int nr_bombe);
 
     const int getInaltime();
     const int getLatime();

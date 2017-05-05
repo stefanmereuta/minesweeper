@@ -3,7 +3,9 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <stdio.h>
+#include <iostream>
 
+Tabla ManagerJoc::t = Tabla();
 
 ManagerJoc::ManagerJoc(int inaltime, int latime, int bombe)
 {
@@ -15,7 +17,7 @@ SDL_Window* ManagerJoc::gWindow = NULL;
 
 SDL_Renderer* ManagerJoc::gRenderer = NULL;
 
-SDL_Rect ManagerJoc::gSpriteClips[ 4 ];
+SDL_Rect ManagerJoc::gSpriteClips[ 12 ];
 LTexture ManagerJoc::gSpriteSheetTexture;
 
 bool ManagerJoc::init()
@@ -85,29 +87,12 @@ bool ManagerJoc::loadMedia()
 	}
 	else
 	{
-		//Set top left sprite
-		gSpriteClips[ 0 ].x =   0;
-		gSpriteClips[ 0 ].y =   0;
-		gSpriteClips[ 0 ].w = 100;
-		gSpriteClips[ 0 ].h = 100;
-
-		//Set top right sprite
-		gSpriteClips[ 1 ].x = 100;
-		gSpriteClips[ 1 ].y =   0;
-		gSpriteClips[ 1 ].w = 100;
-		gSpriteClips[ 1 ].h = 100;
-
-		//Set bottom left sprite
-		gSpriteClips[ 2 ].x =   0;
-		gSpriteClips[ 2 ].y = 100;
-		gSpriteClips[ 2 ].w = 100;
-		gSpriteClips[ 2 ].h = 100;
-
-		//Set bottom right sprite
-		gSpriteClips[ 3 ].x = 100;
-		gSpriteClips[ 3 ].y = 100;
-		gSpriteClips[ 3 ].w = 100;
-		gSpriteClips[ 3 ].h = 100;
+	    for (int i = tile_covered; i <= tile_8; ++i) {
+            gSpriteClips[i].x = (i % 4) * 16;
+            gSpriteClips[i].y = (i / 4) * 16;
+            gSpriteClips[i].w = 16;
+            gSpriteClips[i].h = 16;
+	    }
 	}
 
 	return success;
@@ -131,15 +116,17 @@ void ManagerJoc::close()
 
 void ManagerJoc::start()
 {
+    t.reset(9, 9, 10);
+
     //Start up SDL and create window
-	if( !ManagerJoc::init() )
+	if( !init() )
 	{
 		printf( "Failed to initialize!\n" );
 	}
 	else
 	{
 		//Load media
-		if( !ManagerJoc::loadMedia() )
+		if( !loadMedia() )
 		{
 			printf( "Failed to load media!\n" );
 		}
@@ -161,32 +148,30 @@ void ManagerJoc::start()
 					if( e.type == SDL_QUIT )
 					{
 						quit = true;
+					} else if (e.type == SDL_MOUSEBUTTONUP && e.button.button == 1) {
+					    int x, y;
+					    SDL_GetMouseState(&x, &y);
+                        t.click(x / 16, y / 16);
 					}
 				}
 
 				//Clear screen
-				SDL_SetRenderDrawColor( ManagerJoc::gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
-				SDL_RenderClear( ManagerJoc::gRenderer );
+				SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
+				SDL_RenderClear( gRenderer );
 
-				//Render top left sprite
-				ManagerJoc::gSpriteSheetTexture.render( 0, 0, &ManagerJoc::gSpriteClips[ 0 ] );
-
-				//Render top right sprite
-				ManagerJoc::gSpriteSheetTexture.render( SCREEN_WIDTH - ManagerJoc::gSpriteClips[ 1 ].w, 0, &ManagerJoc::gSpriteClips[ 1 ] );
-
-				//Render bottom left sprite
-				ManagerJoc::gSpriteSheetTexture.render( 0, SCREEN_HEIGHT - ManagerJoc::gSpriteClips[ 2 ].h, &ManagerJoc::gSpriteClips[ 2 ] );
-
-				//Render bottom right sprite
-				ManagerJoc::gSpriteSheetTexture.render( SCREEN_WIDTH - ManagerJoc::gSpriteClips[ 3 ].w, SCREEN_HEIGHT - ManagerJoc::gSpriteClips[ 3 ].h, &ManagerJoc::gSpriteClips[ 3 ] );
+				for (int i = 0; i != t.getInaltime(); ++i) {
+                    for (int j = 0; j != t.getLatime(); ++j) {
+                        gSpriteSheetTexture.render(j * 16, i * 16, &gSpriteClips[getSprite(t.m_Tabla[i][j])]);
+                    }
+				}
 
 				//Update screen
-				SDL_RenderPresent( ManagerJoc::gRenderer );
+				SDL_RenderPresent( gRenderer );
 			}
 		}
 	}
 
 	//Free resources and close SDL
-	ManagerJoc::close();
+	close();
 }
 

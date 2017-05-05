@@ -26,3 +26,8 @@ void Patratel::setID()
     m_ID = newID;
     newID++;
 }
+
+void Patratel::resetID()
+{
+    newID = 0;
+}

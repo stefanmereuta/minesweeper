@@ -12,6 +12,7 @@ public:
 
     Patratel(int x, int y);
     void setID();
+    static void resetID();
 };
 
 #endif // PATRATEL_H
