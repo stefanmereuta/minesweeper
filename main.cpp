@@ -1,6 +1,10 @@
 #include <iostream>
+#include <stdio.h>
 #include <SDL.h>
+#include <SDL_image.h>
 #include "tabla.h"
+#include "ltexture.h"
+#include "managerjoc.h"
 
 using namespace std;
 
@@ -50,12 +54,14 @@ void AfiseazaID(Tabla tabla)
 
 int main(int argc, char* argv[])
 {
-    Tabla t(9, 9, 10);
+    ManagerJoc::start();
+
+    /*Tabla t(9, 9, 10);
     int x, y;
 
     Afiseaza(t);
     cout << endl;
-    AfiseazaGrup(t);
+    //AfiseazaGrup(t);
     cout << endl;
     //AfiseazaID(t);
     cout << "X, apoi Y\nCoordonatele incep de la 1 din coltul din stanga sus\n\n";
@@ -65,7 +71,7 @@ int main(int argc, char* argv[])
     while (1) {
         cin >> x >> y;
         t.click(x - 1, y - 1);
-    }
+    }*/
 
     return 0;
 }
