@@ -7,6 +7,7 @@ Patratel::Patratel()
     m_Apasat = 0;
     m_AreBomba = 0;
     m_BombeInJur = 0;
+    m_Steag = 0;
     m_Grup = 0;
     //m_ID = ID;
     //ID++;

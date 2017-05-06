@@ -7,6 +7,7 @@
 
 Tabla::Tabla()
 {
+    m_Over = 0;
     m_PatrateVizibile = 0;
     m_Inaltime = 0;
     m_Latime = 0;
@@ -15,6 +16,7 @@ Tabla::Tabla()
 Tabla::Tabla(int inaltime, int latime, int nr_bombe)
 {
     Patratel::resetID();
+    m_Over = 0;
     m_GrupNou = 1;
     m_PatrateVizibile = 0;
     m_Tabla.resize(inaltime);
@@ -45,6 +47,7 @@ Tabla::Tabla(int inaltime, int latime, int nr_bombe)
 
 void Tabla::reset(int inaltime, int latime, int nr_bombe)
 {
+    m_Over = 0;
     m_GrupNou = 1;
     m_PatrateVizibile = 0;
     m_Tabla.clear();
@@ -75,6 +78,29 @@ void Tabla::reset(int inaltime, int latime, int nr_bombe)
     spawnMines(nr_bombe);
 
     grupeazaPatratele();
+/*
+    for (int i = 0; i < m_GrupNou; ++i) {
+        //std::cout << "i=" << i;
+        std::vector<std::vector<char> > matrice(9, std::vector<char>(9,'_'));
+        //std::cout << "Grup " << i << ": ";
+
+        for (std::list<int>::iterator j = m_Grupuri[i].begin(); j != m_Grupuri[i].end(); ++j) {
+            //std::cout << "(" << *j - (*j / m_Inaltime * m_Inaltime) << "," << *j / m_Inaltime << ") ";
+            matrice[*j / m_Inaltime][*j - (*j / m_Inaltime * m_Inaltime)] = '0' + i;
+            //std::cout << "x=" << *j - (*j / m_Inaltime * m_Inaltime) << " y=" << *j / m_Inaltime << "\n";
+        }
+
+        for (int j = 0; j < 9; ++j) {
+            //std::cout << "j=" << j << "\n";
+            for (int k = 0; k < 9; ++k) {
+                //std::cout << "k=" << k << "\n";
+                std::cout << matrice[j][k] << " ";
+            }
+            std::cout << "\n";
+        }
+
+        std::cout << "\n";
+    }*/
 }
 
 bool Tabla::validCoords(int x, int y)
@@ -137,10 +163,12 @@ void Tabla::floodFill(int x, int y)
     int x_dif[8] = {1, 1, 0, -1, -1, -1, 0, 1}, y_dif[8] = {0, 1, 1, 1, 0, -1, -1, -1};
 
     for (int i = 0; i < 8; ++i) {
-        if (validCoords(x + x_dif[i], y + y_dif[i]) && !m_Tabla[y + y_dif[i]][x + x_dif[i]].m_Grup) {
-            if (!m_Tabla[y + y_dif[i]][x + x_dif[i]].m_BombeInJur) {
+        if (validCoords(x + x_dif[i], y + y_dif[i])) {
+            if (!m_Tabla[y + y_dif[i]][x + x_dif[i]].m_Grup && !m_Tabla[y + y_dif[i]][x + x_dif[i]].m_BombeInJur) {
                 floodFill(x + x_dif[i], y + y_dif[i]);
-            } else if (m_Tabla[y + y_dif[i]][x + x_dif[i]].m_Grup != m_GrupNou){
+            } else if (m_Tabla[y + y_dif[i]][x + x_dif[i]].m_BombeInJur && m_Tabla[y + y_dif[i]][x + x_dif[i]].m_Grup != m_GrupNou){
+                //std::cout << "grup vechi " << m_Tabla[y + y_dif[i]][x + x_dif[i]].m_Grup << " grup nou " << m_GrupNou \
+                 << " pt " << x + x_dif[i] << " " << y + y_dif[i] << "\n";
                 //un patratel cu bombe in jur poate fi in mai multe grupuri
                 m_Tabla[y + y_dif[i]][x + x_dif[i]].m_Grup = m_GrupNou;
                 m_Grupuri[m_GrupNou].push_back(m_Tabla[y + y_dif[i]][x + x_dif[i]].m_ID);
@@ -169,6 +197,8 @@ void Tabla::click(int x, int y)
         //std::cout << "Ai apasat deja acolo boss\n";
     } else if (m_Tabla[y][x].m_AreBomba) {
         m_Tabla[y][x].m_Apasat = 1;
+        m_Over = 1;
+        m_Won = 0;
         //std::cout << "Game over\n";
     } else if (m_Tabla[y][x].m_BombeInJur) {
         m_Tabla[y][x].m_Apasat = 1;
@@ -189,6 +219,8 @@ void Tabla::click(int x, int y)
     //std::cout << m_PatrateVizibile << " vizibile\n";
 
     if (m_PatrateVizibile == m_Latime * m_Inaltime - m_NrBombe) {
+        m_Over = 1;
+        m_Won = 1;
         //std::cout << "ai castigat\n";
     }
 
@@ -217,4 +249,26 @@ void Tabla::show()
 Patratel* Tabla::getSquare(int ID)
 {
     return &(m_Tabla[ID / m_Inaltime][ID - (ID / m_Inaltime * m_Inaltime)]);
+}
+
+void Tabla::flagMines()
+{
+    for (int i = 0; i < m_Inaltime; ++i) {
+        for (int j = 0; j < m_Latime; ++j) {
+            if (m_Tabla[i][j].m_AreBomba) {
+                m_Tabla[i][j].m_Steag = 1;
+            }
+        }
+    }
+}
+
+void Tabla::revealMines()
+{
+    for (int i = 0; i < m_Inaltime; ++i) {
+        for (int j = 0; j < m_Latime; ++j) {
+            if (m_Tabla[i][j].m_AreBomba) {
+                m_Tabla[i][j].m_Apasat = 1;
+            }
+        }
+    }
 }

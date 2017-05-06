@@ -11,7 +11,6 @@ class Tabla
     int m_Inaltime, m_Latime, m_PatrateVizibile, m_NrBombe, m_GrupNou;
     std::vector<std::list<int> > m_Grupuri;
 
-    bool validCoords(int x, int y);
     void updateNumber(int x, int y);
     void spawnMines(int nr);
     void grupeazaPatratele();
@@ -19,6 +18,10 @@ class Tabla
     Patratel* getSquare(int ID);
 
 public:
+    bool validCoords(int x, int y);
+    void flagMines();
+    void revealMines();
+    bool m_Over, m_Won;
     std::vector<std::vector<Patratel> > m_Tabla;
     //Patratel **m_Tabla;
 
