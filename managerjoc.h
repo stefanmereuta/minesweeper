@@ -6,6 +6,11 @@
 #include "tabla.h"
 #include "ltexture.h"
 
+struct coords
+{
+    int x, y;
+};
+
 class ManagerJoc
 {
 public:
@@ -22,7 +27,10 @@ public:
         tile_5,
         tile_6,
         tile_7,
-        tile_8
+        tile_8,
+        tile_mine_red,
+        tile_question,
+        tile_mine_x
     };
 
     enum game_states
@@ -70,7 +78,7 @@ public:
     static SDL_Renderer* gRenderer;
 
     //Scene sprites
-    static SDL_Rect tileSpriteClips[12], smileySpriteClips[4];
+    static SDL_Rect tileSpriteClips[15], smileySpriteClips[4];
     static LTexture tileSpriteSheetTexture, smileySpriteSheetTexture;
 };
 

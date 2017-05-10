@@ -3,6 +3,7 @@
 #include <SDL_image.h>
 #include <stdio.h>
 #include <iostream>
+#include <math.h>
 
 Tabla ManagerJoc::t = Tabla();
 
@@ -10,7 +11,7 @@ SDL_Window* ManagerJoc::gWindow = NULL;
 
 SDL_Renderer* ManagerJoc::gRenderer = NULL;
 
-SDL_Rect ManagerJoc::tileSpriteClips[12], ManagerJoc::smileySpriteClips[4];
+SDL_Rect ManagerJoc::tileSpriteClips[15], ManagerJoc::smileySpriteClips[4];
 LTexture ManagerJoc::tileSpriteSheetTexture, ManagerJoc::smileySpriteSheetTexture;
 
 int ManagerJoc::offsetX = 0;
@@ -76,7 +77,7 @@ bool ManagerJoc::loadMedia()
 		printf("Failed to load sprite sheet texture!\n");
 		success = false;
 	} else {
-	    for (int i = 0; i < 12; ++i) {
+	    for (int i = 0; i < 15; ++i) {
             tileSpriteClips[i].x = (i % 4) * 16;
             tileSpriteClips[i].y = (i / 4) * 16;
             tileSpriteClips[i].w = 16;
@@ -118,6 +119,8 @@ void ManagerJoc::start()
     SDL_Rect smileyPos = {t.getLatime() * 8 - 16, 0, 32, 32};
     int gameState = state_new;
 
+    //std::cout << smileyPos.x  << " " << smileyPos.x + smileyPos.w << " " << smileyPos.y << " " << smileyPos.y + smileyPos.h << "\n";
+
     //Start up SDL and create window
 	if( !init() )
 	{
@@ -133,7 +136,10 @@ void ManagerJoc::start()
 		else
 		{
 			//Main loop flag
-			bool quit = false;
+			bool quit = 0;
+            int mouseX, mouseY;
+            bool peTabla, peSmiley;
+            int tablaX, tablaY;
 
 			//Event handler
 			SDL_Event e;
@@ -141,8 +147,21 @@ void ManagerJoc::start()
 			//While application is running
 			while( !quit )
 			{
-                int x, y;
-                SDL_GetMouseState(&x, &y);
+                SDL_GetMouseState(&mouseX, &mouseY);
+
+                if (!(gameState == state_over)) {
+                    tablaX = floor((double) (mouseX - offsetX) / 16);
+                    tablaY = floor((double) (mouseY - offsetY) / 16);
+                }
+
+                //std::cout << tablaX << " " << tablaY << "\n";
+
+                peTabla = (tablaX >= 0 && tablaX < t.getLatime() && tablaY >= 0 && tablaY < t.getInaltime());
+                peSmiley = (smileyPos.x <= mouseX && mouseX < smileyPos.x + smileyPos.w && \
+                smileyPos.y <= mouseY && mouseY < smileyPos.y + smileyPos.h);
+
+                //if (peSmiley && peTabla) std::cout << "wtf\n";
+
 				//Handle events on queue
 				while( SDL_PollEvent( &e ) != 0 )
 				{
@@ -152,15 +171,19 @@ void ManagerJoc::start()
 					{
 						quit = true;
 					} else if (e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP) {
-                        int x, y;
-                        SDL_GetMouseState(&x, &y);
-
 					    //click pe patratele
-					    if (gameState != state_over && offsetX <= x && x < offsetX + t.getLatime() * 16 && offsetY <= y && y < offsetY + t.getInaltime() * 16) {
+					    if (gameState != state_over && peTabla) {
                             gameState = state_ongoing;
-                            if (e.type == SDL_MOUSEBUTTONUP && e.button.button == 1) {
-                                smileySprite = smiley_normal;
-                                t.click((x - offsetX) / 16, (y - offsetY) / 16);
+
+                            //daca releasezi middle click sau
+                            //releasezi unul din right si left click in timp ce celalalt e apasat
+                            if ((e.type == SDL_MOUSEBUTTONUP && e.button.button == SDL_BUTTON_LEFT && \
+                                SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT)) || \
+                                (e.type == SDL_MOUSEBUTTONUP && e.button.button == SDL_BUTTON_RIGHT && \
+                                SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) || \
+                                (e.type == SDL_MOUSEBUTTONUP && e.button.button == SDL_BUTTON_MIDDLE) \
+                                ) {
+                                t.clickMijloc(tablaX, tablaY);
 
                                 if (t.m_Over) {
                                     gameState = state_over;
@@ -173,11 +196,27 @@ void ManagerJoc::start()
                                         t.revealMines();
                                     }
                                 }
-                            } else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == 1) {
+                            } else if (e.type == SDL_MOUSEBUTTONUP && e.button.button == SDL_BUTTON_LEFT) {
+                                smileySprite = smiley_normal;
+                                t.click(tablaX, tablaY);
+
+                                if (t.m_Over) {
+                                    gameState = state_over;
+
+                                    if (t.m_Won) {
+                                        smileySprite = smiley_nice;
+                                        t.flagMines();
+                                    } else {
+                                        smileySprite = smiley_dead;
+                                        t.revealMines();
+                                    }
+                                }
+                            } else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT) {
                                 smileySprite = smiley_surprised;
+                            } else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_RIGHT) {
+                                t.schimbaSemn(tablaX, tablaY);
                             }
-                        } else if (smileyPos.x <= x && x < smileyPos.x + smileyPos.w && smileyPos.y <= y && y < smileyPos.y + smileyPos.h) {
-                            //std::cout << "da\n";
+                        } else if (peSmiley) {
                             gameState = state_new;
                             smileySprite = smiley_normal;
                             t.reset(t.getLatime(), t.getInaltime(), 10);
@@ -186,7 +225,7 @@ void ManagerJoc::start()
 				}
 
 				//Clear screen
-				SDL_SetRenderDrawColor( gRenderer, 0xC0, 0xC0, 0xC0, 0xC0 );
+				SDL_SetRenderDrawColor( gRenderer, 0xC0, 0xC0, 0xC0, 0xFF );
 				SDL_RenderClear( gRenderer );
 
 				smileySpriteSheetTexture.render(t.getLatime() * 8 + offsetX - 16, 0, &smileySpriteClips[smileySprite]);
@@ -197,9 +236,30 @@ void ManagerJoc::start()
                     }
 				}
 
-				if (SDL_GetMouseState(&x, &y) & SDL_BUTTON(SDL_BUTTON_LEFT) && gameState != state_over && offsetX <= x && x < offsetX + t.getLatime() * 16 && offsetY <= y && y < offsetY + t.getInaltime() * 16) {
-                    if (!t.m_Tabla[(y - offsetY) / 16][(x - offsetX) / 16].m_Apasat) {
-                        tileSpriteSheetTexture.render((x - offsetX) / 16 * 16 + offsetX, (y - offsetY) / 16 * 16 + offsetY, &tileSpriteClips[tile_clear]);
+				//daca e apasat right click, arata ca apasat patratelul
+				if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT) && gameState != state_over && peTabla) {
+                    if (!t.m_Tabla[tablaY][tablaX].m_Apasat && \
+                        !t.m_Tabla[tablaY][tablaX].m_Steag && \
+                        !t.m_Tabla[tablaY][tablaX].m_Intrebare) {
+                        tileSpriteSheetTexture.render(tablaX * 16 + offsetX, tablaY * 16 + offsetY, &tileSpriteClips[tile_clear]);
+                    }
+				}
+
+                //daca e apasat middle click sau left click si right click impreuna, arata ca apasate patratelele din 3x3
+				if ((SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_MIDDLE) || \
+                (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT) && \
+                SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT)))
+                && gameState != state_over && peTabla) {
+                    for (int xdif = -1; xdif <= 1; ++xdif) {
+                        for (int ydif = -1; ydif <= 1; ++ydif) {
+                            if (t.validCoords(tablaX + xdif, tablaY + ydif) && \
+                                !t.m_Tabla[tablaY + ydif][tablaX + xdif].m_Apasat && \
+                                !t.m_Tabla[tablaY + ydif][tablaX + xdif].m_Steag && \
+                                !t.m_Tabla[tablaY + ydif][tablaX + xdif].m_Intrebare) {
+                                tileSpriteSheetTexture.render((tablaX + xdif) * 16 + offsetX, \
+                                (tablaY + ydif) * 16 + offsetY, &tileSpriteClips[tile_clear]);
+                            }
+                        }
                     }
 				}
 
@@ -218,11 +278,19 @@ ManagerJoc::tiles ManagerJoc::getTileSprite(Patratel p)
     if (!p.m_Apasat) {
         if (p.m_Steag) {
             return tile_flag;
+        } else if (p.m_Intrebare) {
+            return tile_question;
         } else {
             return tile_covered;
         }
     } else if (p.m_AreBomba) {
-        return tile_mine;
+        if (p.m_BombaRosie) {
+            return tile_mine_red;
+        } else {
+            return tile_mine;
+        }
+    } else if (p.m_BombaX) {
+        return tile_mine_x;
     } else if (!p.m_BombeInJur) {
         return tile_clear;
     } else if (p.m_BombeInJur == 1) {

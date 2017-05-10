@@ -6,7 +6,7 @@ class Patratel
 
 public:
     int m_X, m_Y, m_BombeInJur, m_ID, m_Grup;
-    bool m_AreBomba, m_Apasat, m_Steag;
+    bool m_AreBomba, m_Apasat, m_Steag, m_Intrebare, m_BombaRosie, m_BombaX;
     static int newID;
     Patratel();
 

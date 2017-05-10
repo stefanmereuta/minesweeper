@@ -8,20 +8,20 @@
 	"ltexture.h"
 	"managerjoc.h"
 
-1494104522 c:\users\user\documents\codeblocks\minesweeper v0\tabla.h
+1494454494 c:\users\user\documents\codeblocks\minesweeper v0\tabla.h
 	"patratel.h"
 	<list>
 	<vector>
 
-1494103680 c:\users\user\documents\codeblocks\minesweeper v0\patratel.h
+1494454125 c:\users\user\documents\codeblocks\minesweeper v0\patratel.h
 
-1494103680 source:c:\users\user\documents\codeblocks\minesweeper v0\tabla.cpp
+1494454552 source:c:\users\user\documents\codeblocks\minesweeper v0\tabla.cpp
 	"tabla.h"
 	<stdlib.h>
 	<time.h>
 	<iostream>
 
-1494103680 source:c:\users\user\documents\codeblocks\minesweeper v0\patratel.cpp
+1494454125 source:c:\users\user\documents\codeblocks\minesweeper v0\patratel.cpp
 	"patratel.h"
 
 1476939494 c:\users\user\documents\codeblocks\minesweeper v0\sdl\include\sdl2\sdl.h
@@ -371,16 +371,17 @@
 1493967775 c:\users\user\documents\codeblocks\minesweeper v0\managergrafica.h
 	"ltexture.h"
 
-1494103002 c:\users\user\documents\codeblocks\minesweeper v0\managerjoc.h
+1494454125 c:\users\user\documents\codeblocks\minesweeper v0\managerjoc.h
 	<SDL.h>
 	<SDL_image.h>
 	"tabla.h"
 	"ltexture.h"
 
-1494105732 source:c:\users\user\documents\codeblocks\minesweeper v0\managerjoc.cpp
+1494454890 source:c:\users\user\documents\codeblocks\minesweeper v0\managerjoc.cpp
 	"managerjoc.h"
 	<SDL.h>
 	<SDL_image.h>
 	<stdio.h>
 	<iostream>
+	<math.h>
 

@@ -26,7 +26,8 @@ public:
     //Patratel **m_Tabla;
 
     //static int grup;
-    void show();
+    //void show();
+    void schimbaSemn(int x, int y); //cicleaza intre steag, semn de intrebare si nimic
 
     Tabla();
     Tabla(int inaltime, int latime, int nr_bombe);
@@ -37,6 +38,7 @@ public:
     const int getLatime();
 
     void click(int x, int y);
+    void clickMijloc(int x, int y);
 };
 
 #endif // TABLA_H

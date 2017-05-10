@@ -193,10 +193,12 @@ void Tabla::grupeazaPatratele()
 
 void Tabla::click(int x, int y)
 {
-    if (m_Tabla[y][x].m_Apasat) {
+    //std::cout << "click pe " << x << " " << y << "\n";
+    if (m_Tabla[y][x].m_Apasat || m_Tabla[y][x].m_Steag || m_Tabla[y][x].m_Intrebare) {
         //std::cout << "Ai apasat deja acolo boss\n";
     } else if (m_Tabla[y][x].m_AreBomba) {
         m_Tabla[y][x].m_Apasat = 1;
+        m_Tabla[y][x].m_BombaRosie = 1;
         m_Over = 1;
         m_Won = 0;
         //std::cout << "Game over\n";
@@ -209,7 +211,7 @@ void Tabla::click(int x, int y)
 
         for (std::list<int>::iterator i = m_Grupuri[m_Tabla[y][x].m_Grup].begin(); i != m_Grupuri[m_Tabla[y][x].m_Grup].end(); ++i) {
 
-            if (!getSquare(*i)->m_Apasat) {
+            if (!getSquare(*i)->m_Apasat && !getSquare(*i)->m_Steag && !getSquare(*i)->m_Intrebare) {
                 m_PatrateVizibile++;
                 getSquare(*i)->m_Apasat = 1;
             }
@@ -223,10 +225,8 @@ void Tabla::click(int x, int y)
         m_Won = 1;
         //std::cout << "ai castigat\n";
     }
-
-    //show();
 }
-
+/*
 void Tabla::show()
 {
     for (int i = 0; i < m_Inaltime; ++i) {
@@ -244,7 +244,7 @@ void Tabla::show()
 
         std::cout << std::endl;
     }
-}
+}*/
 
 Patratel* Tabla::getSquare(int ID)
 {
@@ -266,8 +266,56 @@ void Tabla::revealMines()
 {
     for (int i = 0; i < m_Inaltime; ++i) {
         for (int j = 0; j < m_Latime; ++j) {
-            if (m_Tabla[i][j].m_AreBomba) {
+            if (m_Tabla[i][j].m_AreBomba && !m_Tabla[i][j].m_Steag) {
                 m_Tabla[i][j].m_Apasat = 1;
+            } else if (!m_Tabla[i][j].m_AreBomba && m_Tabla[i][j].m_Steag) {
+                m_Tabla[i][j].m_Apasat = 1;
+                m_Tabla[i][j].m_BombaX = 1;
+            }
+        }
+    }
+}
+
+void Tabla::schimbaSemn(int x, int y)
+{
+    if (m_Tabla[y][x].m_Steag) {
+        m_Tabla[y][x].m_Steag = 0;
+        m_Tabla[y][x].m_Intrebare = 1;
+    } else if (m_Tabla[y][x].m_Intrebare) {
+        m_Tabla[y][x].m_Intrebare = 0;
+    } else {
+        m_Tabla[y][x].m_Steag = 1;
+    }
+}
+
+void Tabla::clickMijloc(int x, int y)
+{
+    if (m_Tabla[y][x].m_Apasat && m_Tabla[y][x].m_BombeInJur) {
+        int nr_bombe = 0;
+
+        for (int xdif = -1; xdif <= 1; ++xdif) {
+            for (int ydif = -1; ydif <= 1; ++ydif) {
+                if (validCoords(x + xdif, y + ydif) && !m_Tabla[y + ydif][x + xdif].m_Apasat) {
+                    if (m_Tabla[y + ydif][x + xdif].m_Intrebare) {
+                        return;
+                    }
+
+                    if (m_Tabla[y + ydif][x + xdif].m_Steag) {
+                        nr_bombe++;
+                    }
+                }
+            }
+        }
+
+        if (nr_bombe != m_Tabla[y][x].m_BombeInJur) {
+            return;
+        }
+
+        for (int xdif = -1; xdif <= 1; ++xdif) {
+            for (int ydif = -1; ydif <= 1; ++ydif) {
+                if (validCoords(x + xdif, y + ydif) && !m_Tabla[y + ydif][x + xdif].m_Apasat) {
+                    click(x + xdif, y + ydif);
+                }
             }
         }
     }
