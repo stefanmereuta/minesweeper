@@ -6,11 +6,6 @@
 #include "tabla.h"
 #include "ltexture.h"
 
-struct coords
-{
-    int x, y;
-};
-
 class ManagerJoc
 {
 public:
@@ -80,10 +75,13 @@ public:
     static Tabla t;
 
     static int offsetX, offsetY, borderHeight, borderWidth, topHeight;
+    static int cifreBombe[3], cifreCeas[3];
 
     static void start();
 
     static tiles getTileSprite(Patratel p);
+
+    static void numberSprites(int n, int cifre[3]);
 
     //Screen dimension constants
     static int SCREEN_WIDTH;

@@ -28,6 +28,8 @@ int ManagerJoc::borderHeight = 16;
 int ManagerJoc::borderWidth = 16;
 int ManagerJoc::topHeight = 48;
 
+int ManagerJoc::cifreBombe[3] = {0}, ManagerJoc::cifreCeas[3] = {0};
+
 int ManagerJoc::SCREEN_WIDTH = 16 * 9 + 2 * ManagerJoc::borderWidth;
 int ManagerJoc::SCREEN_HEIGHT = 16 * 9 + 3 * ManagerJoc::borderHeight + ManagerJoc::topHeight;
 
@@ -146,9 +148,10 @@ void ManagerJoc::start()
 {
     t.reset(9, 9, 10);
     smiley_sprites smileySprite = smiley_normal;
-    //int borderWidth = 10, borderHeight = 10, topHeight = 40;
     SDL_Rect smileyPos = {borderWidth + t.getLatime() * 8 - 16, borderHeight + topHeight / 2 - 16, 32, 32};
     int gameState = state_new;
+    clock_t timp_inceput = 0;
+    int timp = 0;
 
     //Start up SDL and create window
 	if( !init() )
@@ -187,6 +190,10 @@ void ManagerJoc::start()
                 peSmiley = (smileyPos.x <= mouseX && mouseX < smileyPos.x + smileyPos.w && \
                 smileyPos.y <= mouseY && mouseY < smileyPos.y + smileyPos.h);
 
+                if (gameState == state_ongoing) {
+                    timp = (clock() - timp_inceput) / CLOCKS_PER_SEC;
+                }
+
 				//Handle events on queue
 				while( SDL_PollEvent( &e ) != 0 )
 				{
@@ -198,8 +205,6 @@ void ManagerJoc::start()
 					} else if (e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP) {
 					    //click pe patratele
 					    if (gameState != state_over && peTabla) {
-                            gameState = state_ongoing;
-
                             //daca releasezi middle click sau
                             //releasezi unul din right si left click in timp ce celalalt e apasat
                             if ((e.type == SDL_MOUSEBUTTONUP && e.button.button == SDL_BUTTON_LEFT && \
@@ -222,6 +227,11 @@ void ManagerJoc::start()
                                     }
                                 }
                             } else if (e.type == SDL_MOUSEBUTTONUP && e.button.button == SDL_BUTTON_LEFT) {
+                                if (gameState == state_new) {
+                                    gameState = state_ongoing;
+                                    timp_inceput = clock();
+                                }
+
                                 smileySprite = smiley_normal;
 
                                 if (!t.eInitializat()) {
@@ -250,15 +260,24 @@ void ManagerJoc::start()
                             gameState = state_new;
                             smileySprite = smiley_normal;
                             t.reset(t.getLatime(), t.getInaltime(), 10);
+                            timp = 0;
                         }
 					}
 				}
+
+				numberSprites(timp, cifreCeas);
+				numberSprites(t.getBombeRamase(), cifreBombe);
 
 				//Clear screen
 				SDL_SetRenderDrawColor( gRenderer, 0xC0, 0xC0, 0xC0, 0xFF );
 				SDL_RenderClear( gRenderer );
 
 				renderBorder();
+
+				for (int i = 0; i < 3; ++i) {
+                    numberSpriteSheetTexture.render(borderWidth + 6 + i * 13, borderHeight + topHeight / 2 - 12, &numberSpriteClips[cifreBombe[i]]);
+                    numberSpriteSheetTexture.render(borderWidth - 6 + t.getLatime() * 16 - 39 + i * 13, borderHeight + topHeight / 2 - 12, &numberSpriteClips[cifreCeas[i]]);
+				}
 
 				if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT) && peSmiley) {
                     smileySpriteSheetTexture.render(smileyPos.x, smileyPos.y, &smileySpriteClips[smiley_pressed]);
@@ -275,7 +294,7 @@ void ManagerJoc::start()
                     }
 				}
 
-				//daca e apasat right click, arata ca apasat patratelul
+				//daca e apasat left click, arata ca apasat patratelul
 				if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT) && gameState != state_over && peTabla) {
                     if (!t.m_Tabla[tablaY][tablaX].m_Apasat && \
                         !t.m_Tabla[tablaY][tablaX].m_Steag && \
@@ -378,5 +397,27 @@ void ManagerJoc::renderBorder()
     for (int y = 2 * borderHeight + topHeight; y < 2 * borderHeight + topHeight + inaltimeTabla; y += borderHeight) {
         borderSpriteSheetTexture.render(0, y, &borderSpriteClips[border_vertical]);
         borderSpriteSheetTexture.render(borderWidth + latimeTabla, y, &borderSpriteClips[border_vertical]);
+    }
+}
+
+void ManagerJoc::numberSprites(int n, int cifre[3])
+{
+    if (n >= 0) {
+        if (n >= 999) {
+            cifre[0] = cifre[1] = cifre[2] = number_9;
+        } else {
+            cifre[0] = n / 100;
+            cifre[1] = (n % 100) / 10;
+            cifre[2] = n % 10;
+        }
+    } else {
+        cifre[0] = number_minus;
+
+        if (n <= -99) {
+            cifre[1] = cifre[2] = number_9;
+        } else {
+            cifre[1] = -n / 10;
+            cifre[2] = -n % 10;
+        }
     }
 }

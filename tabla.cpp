@@ -17,6 +17,7 @@ Tabla::Tabla(int inaltime, int latime, int nr_bombe)
     m_GrupNou = 1;
     m_PatrateVizibile = 0;
     m_Initializat = 0;
+    m_BombeRamase = nr_bombe;
     m_Tabla.resize(inaltime);
 
     for (int i = 0; i < inaltime; ++i) {
@@ -48,6 +49,7 @@ void Tabla::reset(int inaltime, int latime, int nr_bombe)
     m_GrupNou = 1;
     m_PatrateVizibile = 0;
     m_Initializat = 0;
+    m_BombeRamase = nr_bombe;
     m_Tabla.clear();
     m_Tabla.resize(inaltime);
     Patratel::resetID();
@@ -76,7 +78,7 @@ void Tabla::reset(int inaltime, int latime, int nr_bombe)
     spawnMines(nr_bombe);
 }
 
-bool Tabla::validCoords(int x, int y)
+const bool Tabla::validCoords(int x, int y)
 {
     if (x >= 0 && y >= 0 && x < m_Latime && y < m_Inaltime) {
         return 1;
@@ -187,6 +189,7 @@ void Tabla::click(int x, int y)
     if (m_PatrateVizibile == m_Latime * m_Inaltime - m_NrBombe) {   //toate patratelele fara bombe sunt apasate
         m_Over = 1;
         m_Won = 1;
+        m_BombeRamase = 0;
     }
 }
 
@@ -222,13 +225,19 @@ void Tabla::revealMines()
 
 void Tabla::schimbaSemn(int x, int y)
 {
-    if (m_Tabla[y][x].m_Steag) {
-        m_Tabla[y][x].m_Steag = 0;
-        m_Tabla[y][x].m_Intrebare = 1;
-    } else if (m_Tabla[y][x].m_Intrebare) {
-        m_Tabla[y][x].m_Intrebare = 0;
-    } else {
-        m_Tabla[y][x].m_Steag = 1;
+    if (!m_Tabla[y][x].m_Apasat) {
+        if (m_Tabla[y][x].m_Steag) {
+            m_Tabla[y][x].m_Steag = 0;
+            m_Tabla[y][x].m_Intrebare = 1;
+
+            m_BombeRamase++;
+        } else if (m_Tabla[y][x].m_Intrebare) {
+            m_Tabla[y][x].m_Intrebare = 0;
+        } else {
+            m_Tabla[y][x].m_Steag = 1;
+
+            m_BombeRamase--;
+        }
     }
 }
 
@@ -294,4 +303,9 @@ void Tabla::initializeaza(int x, int y)
 const bool Tabla::eInitializat()
 {
     return m_Initializat;
+}
+
+const int Tabla::getBombeRamase()
+{
+    return m_BombeRamase;
 }

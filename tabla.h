@@ -8,7 +8,7 @@
 
 class Tabla
 {
-    int m_Inaltime, m_Latime, m_PatrateVizibile, m_NrBombe, m_GrupNou;
+    int m_Inaltime, m_Latime, m_PatrateVizibile, m_NrBombe, m_GrupNou, m_BombeRamase;
     bool m_Initializat;
     std::vector<std::list<int> > m_Grupuri;
 
@@ -19,11 +19,12 @@ class Tabla
     Patratel* getSquare(int ID);
 
 public:
-    bool validCoords(int x, int y);
+    const bool validCoords(int x, int y);
     void flagMines();
     void revealMines();
     void initializeaza(int x, int y);
     bool m_Over, m_Won;
+    const int getBombeRamase();
     std::vector<std::vector<Patratel> > m_Tabla;
 
     void schimbaSemn(int x, int y); //cicleaza intre steag, semn de intrebare si nimic
