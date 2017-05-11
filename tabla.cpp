@@ -3,8 +3,6 @@
 #include <time.h>
 #include <iostream> //doar pt debugging
 
-//int Tabla::grup = 1;
-
 Tabla::Tabla()
 {
     m_Over = 0;
@@ -78,29 +76,6 @@ void Tabla::reset(int inaltime, int latime, int nr_bombe)
     spawnMines(nr_bombe);
 
     grupeazaPatratele();
-/*
-    for (int i = 0; i < m_GrupNou; ++i) {
-        //std::cout << "i=" << i;
-        std::vector<std::vector<char> > matrice(9, std::vector<char>(9,'_'));
-        //std::cout << "Grup " << i << ": ";
-
-        for (std::list<int>::iterator j = m_Grupuri[i].begin(); j != m_Grupuri[i].end(); ++j) {
-            //std::cout << "(" << *j - (*j / m_Inaltime * m_Inaltime) << "," << *j / m_Inaltime << ") ";
-            matrice[*j / m_Inaltime][*j - (*j / m_Inaltime * m_Inaltime)] = '0' + i;
-            //std::cout << "x=" << *j - (*j / m_Inaltime * m_Inaltime) << " y=" << *j / m_Inaltime << "\n";
-        }
-
-        for (int j = 0; j < 9; ++j) {
-            //std::cout << "j=" << j << "\n";
-            for (int k = 0; k < 9; ++k) {
-                //std::cout << "k=" << k << "\n";
-                std::cout << matrice[j][k] << " ";
-            }
-            std::cout << "\n";
-        }
-
-        std::cout << "\n";
-    }*/
 }
 
 bool Tabla::validCoords(int x, int y)
@@ -158,7 +133,6 @@ void Tabla::floodFill(int x, int y)
 {
     m_Tabla[y][x].m_Grup = m_GrupNou;
     m_Grupuri[m_GrupNou].push_back(m_Tabla[y][x].m_ID);
-    //std::cout << "am bagat " << x << " " << y << " in grupul " << m_GrupNou << "\n";
 
     int x_dif[8] = {1, 1, 0, -1, -1, -1, 0, 1}, y_dif[8] = {0, 1, 1, 1, 0, -1, -1, -1};
 
@@ -167,12 +141,9 @@ void Tabla::floodFill(int x, int y)
             if (!m_Tabla[y + y_dif[i]][x + x_dif[i]].m_Grup && !m_Tabla[y + y_dif[i]][x + x_dif[i]].m_BombeInJur) {
                 floodFill(x + x_dif[i], y + y_dif[i]);
             } else if (m_Tabla[y + y_dif[i]][x + x_dif[i]].m_BombeInJur && m_Tabla[y + y_dif[i]][x + x_dif[i]].m_Grup != m_GrupNou){
-                //std::cout << "grup vechi " << m_Tabla[y + y_dif[i]][x + x_dif[i]].m_Grup << " grup nou " << m_GrupNou \
-                 << " pt " << x + x_dif[i] << " " << y + y_dif[i] << "\n";
                 //un patratel cu bombe in jur poate fi in mai multe grupuri
                 m_Tabla[y + y_dif[i]][x + x_dif[i]].m_Grup = m_GrupNou;
                 m_Grupuri[m_GrupNou].push_back(m_Tabla[y + y_dif[i]][x + x_dif[i]].m_ID);
-                //std::cout << "am bagat " << x + x_dif[i] << " " << y + y_dif[i] << " in grupul " << m_GrupNou << "\n";
             }
         }
     }
@@ -193,19 +164,17 @@ void Tabla::grupeazaPatratele()
 
 void Tabla::click(int x, int y)
 {
-    //std::cout << "click pe " << x << " " << y << "\n";
     if (m_Tabla[y][x].m_Apasat || m_Tabla[y][x].m_Steag || m_Tabla[y][x].m_Intrebare) {
-        //std::cout << "Ai apasat deja acolo boss\n";
-    } else if (m_Tabla[y][x].m_AreBomba) {
+        //nimic
+    } else if (m_Tabla[y][x].m_AreBomba) {      //pierdut
         m_Tabla[y][x].m_Apasat = 1;
         m_Tabla[y][x].m_BombaRosie = 1;
         m_Over = 1;
         m_Won = 0;
-        //std::cout << "Game over\n";
-    } else if (m_Tabla[y][x].m_BombeInJur) {
+    } else if (m_Tabla[y][x].m_BombeInJur) {    //se arata patratelul
         m_Tabla[y][x].m_Apasat = 1;
         m_PatrateVizibile++;
-    } else {
+    } else {                                    //se arata tot grupul de patratele
         //nu merge asa pt ca un patrat cu numar poate fi in mai multe grupuri
         //m_PatrateVizibile = m_PatrateVizibile + m_Grupuri[m_Tabla[y][x].m_Grup].size();
 
@@ -218,33 +187,11 @@ void Tabla::click(int x, int y)
         }
     }
 
-    //std::cout << m_PatrateVizibile << " vizibile\n";
-
-    if (m_PatrateVizibile == m_Latime * m_Inaltime - m_NrBombe) {
+    if (m_PatrateVizibile == m_Latime * m_Inaltime - m_NrBombe) {   //toate patratelele fara bombe sunt apasate
         m_Over = 1;
         m_Won = 1;
-        //std::cout << "ai castigat\n";
     }
 }
-/*
-void Tabla::show()
-{
-    for (int i = 0; i < m_Inaltime; ++i) {
-        for (int j = 0; j < m_Latime; ++j) {
-            if (!m_Tabla[i][j].m_Apasat) {
-                std::cout << "# ";
-            } else if (m_Tabla[i][j].m_AreBomba) {
-                std::cout << "* ";
-            } else if (m_Tabla[i][j].m_BombeInJur) {
-                std::cout << m_Tabla[i][j].m_BombeInJur << " ";
-            } else {
-                std::cout << "_ ";
-            }
-        }
-
-        std::cout << std::endl;
-    }
-}*/
 
 Patratel* Tabla::getSquare(int ID)
 {

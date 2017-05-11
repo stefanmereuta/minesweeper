@@ -12,15 +12,12 @@ Patratel::Patratel()
     m_Steag = 0;
     m_Intrebare = 0;
     m_Grup = 0;
-    //m_ID = ID;
-    //ID++;
 }
 
 Patratel::Patratel(int x, int y)
 {
     m_X = x;
     m_Y = y;
-    //m_ID =
     m_AreBomba = 0;
     m_BombaRosie = 0;
     m_BombaX = 0;

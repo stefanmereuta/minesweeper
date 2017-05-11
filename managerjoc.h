@@ -56,11 +56,9 @@ public:
 
     static tiles getTileSprite(Patratel p);
 
-    //ManagerJoc(int inaltime, int latime, int bombe);
-
     //Screen dimension constants
-    static int SCREEN_WIDTH;// = 16 * 9 + offsetX;//640;
-    static int SCREEN_HEIGHT;// = 16 * 9 + offsetY;//480;
+    static int SCREEN_WIDTH;
+    static int SCREEN_HEIGHT;
 
     //Starts up SDL and creates window
     static bool init();

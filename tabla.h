@@ -23,10 +23,7 @@ public:
     void revealMines();
     bool m_Over, m_Won;
     std::vector<std::vector<Patratel> > m_Tabla;
-    //Patratel **m_Tabla;
 
-    //static int grup;
-    //void show();
     void schimbaSemn(int x, int y); //cicleaza intre steag, semn de intrebare si nimic
 
     Tabla();

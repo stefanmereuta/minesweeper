@@ -119,8 +119,6 @@ void ManagerJoc::start()
     SDL_Rect smileyPos = {t.getLatime() * 8 - 16, 0, 32, 32};
     int gameState = state_new;
 
-    //std::cout << smileyPos.x  << " " << smileyPos.x + smileyPos.w << " " << smileyPos.y << " " << smileyPos.y + smileyPos.h << "\n";
-
     //Start up SDL and create window
 	if( !init() )
 	{
