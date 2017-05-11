@@ -1,6 +1,5 @@
 #include "tabla.h"
 #include <stdlib.h>
-#include <time.h>
 #include <iostream> //doar pt debugging
 
 Tabla::Tabla()
@@ -17,6 +16,7 @@ Tabla::Tabla(int inaltime, int latime, int nr_bombe)
     m_Over = 0;
     m_GrupNou = 1;
     m_PatrateVizibile = 0;
+    m_Initializat = 0;
     m_Tabla.resize(inaltime);
 
     for (int i = 0; i < inaltime; ++i) {
@@ -40,7 +40,6 @@ Tabla::Tabla(int inaltime, int latime, int nr_bombe)
     }
 
     spawnMines(nr_bombe);
-    grupeazaPatratele();
 }
 
 void Tabla::reset(int inaltime, int latime, int nr_bombe)
@@ -48,6 +47,7 @@ void Tabla::reset(int inaltime, int latime, int nr_bombe)
     m_Over = 0;
     m_GrupNou = 1;
     m_PatrateVizibile = 0;
+    m_Initializat = 0;
     m_Tabla.clear();
     m_Tabla.resize(inaltime);
     Patratel::resetID();
@@ -74,8 +74,6 @@ void Tabla::reset(int inaltime, int latime, int nr_bombe)
     }
 
     spawnMines(nr_bombe);
-
-    grupeazaPatratele();
 }
 
 bool Tabla::validCoords(int x, int y)
@@ -97,12 +95,12 @@ const int Tabla::getLatime()
     return m_Latime;
 }
 
-void Tabla::updateNumber(int x, int y)
+void Tabla::updateNumber(int x, int y, int adun)
 {
     for (int ydif = -1; ydif <= 1; ++ydif) {
         for (int xdif = -1; xdif <= 1; ++xdif) {
             if ((xdif || ydif) && validCoords(x + xdif, y + ydif)) {
-                m_Tabla[y + ydif][x + xdif].m_BombeInJur++;
+                m_Tabla[y + ydif][x + xdif].m_BombeInJur += adun;
             }
         }
     }
@@ -111,7 +109,6 @@ void Tabla::updateNumber(int x, int y)
 void Tabla::spawnMines(int nr)
 {
     m_NrBombe = nr;
-    srand(time(NULL));
 
     for (int i = 0; i < nr; ++i) {
         int pos = rand() % (m_Latime * m_Inaltime);
@@ -124,7 +121,7 @@ void Tabla::spawnMines(int nr)
         } else {
             m_Tabla[y][x].m_AreBomba = 1;
 
-            updateNumber(x, y);
+            updateNumber(x, y, 1);
         }
     }
 }
@@ -266,4 +263,35 @@ void Tabla::clickMijloc(int x, int y)
             }
         }
     }
+}
+
+void Tabla::initializeaza(int x, int y)
+{
+    if (m_Tabla[y][x].m_AreBomba) {
+        int pos, xnou, ynou;
+        pos = rand() % (m_Latime * m_Inaltime);
+        ynou = pos / m_Latime;
+        xnou = pos - ynou * m_Latime;
+
+        while (m_Tabla[ynou][xnou].m_AreBomba) {
+            pos = rand() % (m_Latime * m_Inaltime);
+            ynou = pos / m_Latime;
+            xnou = pos - ynou * m_Latime;
+        }
+
+        m_Tabla[ynou][xnou].m_AreBomba = 1;
+        updateNumber(xnou, ynou, 1);
+
+        m_Tabla[y][x].m_AreBomba = 0;
+        updateNumber(x, y, -1);
+    }
+
+    grupeazaPatratele();
+
+    m_Initializat = 1;
+}
+
+const bool Tabla::eInitializat()
+{
+    return m_Initializat;
 }

@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <iostream>
 #include <math.h>
+#include <stdlib.h>
+#include <time.h>
 
 Tabla ManagerJoc::t = Tabla();
 
@@ -11,17 +13,28 @@ SDL_Window* ManagerJoc::gWindow = NULL;
 
 SDL_Renderer* ManagerJoc::gRenderer = NULL;
 
-SDL_Rect ManagerJoc::tileSpriteClips[15], ManagerJoc::smileySpriteClips[4];
-LTexture ManagerJoc::tileSpriteSheetTexture, ManagerJoc::smileySpriteSheetTexture;
+SDL_Rect ManagerJoc::tileSpriteClips[15];
+SDL_Rect ManagerJoc::smileySpriteClips[6];
+SDL_Rect ManagerJoc::borderSpriteClips[8];
+SDL_Rect ManagerJoc::numberSpriteClips[11];
+LTexture ManagerJoc::tileSpriteSheetTexture;
+LTexture ManagerJoc::smileySpriteSheetTexture;
+LTexture ManagerJoc::borderSpriteSheetTexture;
+LTexture ManagerJoc::numberSpriteSheetTexture;
 
 int ManagerJoc::offsetX = 0;
 int ManagerJoc::offsetY = 32;
+int ManagerJoc::borderHeight = 16;
+int ManagerJoc::borderWidth = 16;
+int ManagerJoc::topHeight = 48;
 
-int ManagerJoc::SCREEN_WIDTH = 16 * 9 + ManagerJoc::offsetX;
-int ManagerJoc::SCREEN_HEIGHT = 16 * 9 + ManagerJoc::offsetY;
+int ManagerJoc::SCREEN_WIDTH = 16 * 9 + 2 * ManagerJoc::borderWidth;
+int ManagerJoc::SCREEN_HEIGHT = 16 * 9 + 3 * ManagerJoc::borderHeight + ManagerJoc::topHeight;
 
 bool ManagerJoc::init()
 {
+    srand(time(NULL));
+
 	//Initialization flag
 	bool success = true;
 
@@ -37,7 +50,7 @@ bool ManagerJoc::init()
 		}
 
 		//Create window
-		gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
+		gWindow = SDL_CreateWindow( "Minesweeper", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
 		if(!gWindow)
 		{
 			printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
@@ -72,8 +85,11 @@ bool ManagerJoc::loadMedia()
 	bool success = true;
 
 	//Load sprite sheet texture
-	if(!tileSpriteSheetTexture.loadFromFile("minesweeper_tiles.png") || \
-    !smileySpriteSheetTexture.loadFromFile("smileys.png")) {
+	if (!tileSpriteSheetTexture.loadFromFile("minesweeper_tiles.png") || \
+        !smileySpriteSheetTexture.loadFromFile("smileys.png") || \
+        !borderSpriteSheetTexture.loadFromFile("borders16.png") || \
+        !numberSpriteSheetTexture.loadFromFile("numbers.png")
+    ) {
 		printf("Failed to load sprite sheet texture!\n");
 		success = false;
 	} else {
@@ -84,11 +100,25 @@ bool ManagerJoc::loadMedia()
             tileSpriteClips[i].h = 16;
 	    }
 
-	    for (int i = 0; i < 4; ++i) {
-            smileySpriteClips[i].x = i * 32;
-            smileySpriteClips[i].y = 0;
+	    for (int i = 0; i < 6; ++i) {
+            smileySpriteClips[i].x = (i % 4) * 32;
+            smileySpriteClips[i].y = (i / 4) * 32;
             smileySpriteClips[i].w = 32;
             smileySpriteClips[i].h = 32;
+	    }
+
+	    for (int i = 0; i < 8; ++i) {
+            borderSpriteClips[i].x = (i % 4) * 16;
+            borderSpriteClips[i].y = (i / 4) * 16;
+            borderSpriteClips[i].w = 16;
+            borderSpriteClips[i].h = 16;
+	    }
+
+	    for (int i = 0; i < 11; ++i) {
+            numberSpriteClips[i].x = i * 13;
+            numberSpriteClips[i].y = 0;
+            numberSpriteClips[i].w = 13;
+            numberSpriteClips[i].h = 23;
 	    }
 	}
 
@@ -116,7 +146,8 @@ void ManagerJoc::start()
 {
     t.reset(9, 9, 10);
     smiley_sprites smileySprite = smiley_normal;
-    SDL_Rect smileyPos = {t.getLatime() * 8 - 16, 0, 32, 32};
+    //int borderWidth = 10, borderHeight = 10, topHeight = 40;
+    SDL_Rect smileyPos = {borderWidth + t.getLatime() * 8 - 16, borderHeight + topHeight / 2 - 16, 32, 32};
     int gameState = state_new;
 
     //Start up SDL and create window
@@ -148,17 +179,13 @@ void ManagerJoc::start()
                 SDL_GetMouseState(&mouseX, &mouseY);
 
                 if (!(gameState == state_over)) {
-                    tablaX = floor((double) (mouseX - offsetX) / 16);
-                    tablaY = floor((double) (mouseY - offsetY) / 16);
+                    tablaX = floor((double) (mouseX - borderWidth) / 16);
+                    tablaY = floor((double) (mouseY - 2 * borderHeight - topHeight) / 16);
                 }
-
-                //std::cout << tablaX << " " << tablaY << "\n";
 
                 peTabla = (tablaX >= 0 && tablaX < t.getLatime() && tablaY >= 0 && tablaY < t.getInaltime());
                 peSmiley = (smileyPos.x <= mouseX && mouseX < smileyPos.x + smileyPos.w && \
                 smileyPos.y <= mouseY && mouseY < smileyPos.y + smileyPos.h);
-
-                //if (peSmiley && peTabla) std::cout << "wtf\n";
 
 				//Handle events on queue
 				while( SDL_PollEvent( &e ) != 0 )
@@ -196,6 +223,11 @@ void ManagerJoc::start()
                                 }
                             } else if (e.type == SDL_MOUSEBUTTONUP && e.button.button == SDL_BUTTON_LEFT) {
                                 smileySprite = smiley_normal;
+
+                                if (!t.eInitializat()) {
+                                    t.initializeaza(tablaX, tablaY);
+                                }
+
                                 t.click(tablaX, tablaY);
 
                                 if (t.m_Over) {
@@ -214,7 +246,7 @@ void ManagerJoc::start()
                             } else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_RIGHT) {
                                 t.schimbaSemn(tablaX, tablaY);
                             }
-                        } else if (peSmiley) {
+                        } else if (peSmiley && e.type == SDL_MOUSEBUTTONUP && e.button.button == SDL_BUTTON_LEFT) {
                             gameState = state_new;
                             smileySprite = smiley_normal;
                             t.reset(t.getLatime(), t.getInaltime(), 10);
@@ -226,11 +258,20 @@ void ManagerJoc::start()
 				SDL_SetRenderDrawColor( gRenderer, 0xC0, 0xC0, 0xC0, 0xFF );
 				SDL_RenderClear( gRenderer );
 
-				smileySpriteSheetTexture.render(t.getLatime() * 8 + offsetX - 16, 0, &smileySpriteClips[smileySprite]);
+				renderBorder();
+
+				if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT) && peSmiley) {
+                    smileySpriteSheetTexture.render(smileyPos.x, smileyPos.y, &smileySpriteClips[smiley_pressed]);
+                    smileySpriteSheetTexture.render(smileyPos.x + 1, smileyPos.y + 1, &smileySpriteClips[smileySprite]);
+				} else {
+                    smileySpriteSheetTexture.render(smileyPos.x, smileyPos.y, &smileySpriteClips[smiley_unpressed]);
+                    smileySpriteSheetTexture.render(smileyPos.x, smileyPos.y, &smileySpriteClips[smileySprite]);
+				}
 
 				for (int i = 0; i != t.getInaltime(); ++i) {
                     for (int j = 0; j != t.getLatime(); ++j) {
-                        tileSpriteSheetTexture.render(j * 16 + offsetX, i * 16 + offsetY, &tileSpriteClips[getTileSprite(t.m_Tabla[i][j])]);
+                        tileSpriteSheetTexture.render(j * 16 + borderWidth, i * 16 + 2 * borderHeight + topHeight, \
+                        &tileSpriteClips[getTileSprite(t.m_Tabla[i][j])]);
                     }
 				}
 
@@ -239,7 +280,7 @@ void ManagerJoc::start()
                     if (!t.m_Tabla[tablaY][tablaX].m_Apasat && \
                         !t.m_Tabla[tablaY][tablaX].m_Steag && \
                         !t.m_Tabla[tablaY][tablaX].m_Intrebare) {
-                        tileSpriteSheetTexture.render(tablaX * 16 + offsetX, tablaY * 16 + offsetY, &tileSpriteClips[tile_clear]);
+                        tileSpriteSheetTexture.render(tablaX * 16 + borderWidth, tablaY * 16 + 2 * borderHeight + topHeight, &tileSpriteClips[tile_clear]);
                     }
 				}
 
@@ -254,8 +295,8 @@ void ManagerJoc::start()
                                 !t.m_Tabla[tablaY + ydif][tablaX + xdif].m_Apasat && \
                                 !t.m_Tabla[tablaY + ydif][tablaX + xdif].m_Steag && \
                                 !t.m_Tabla[tablaY + ydif][tablaX + xdif].m_Intrebare) {
-                                tileSpriteSheetTexture.render((tablaX + xdif) * 16 + offsetX, \
-                                (tablaY + ydif) * 16 + offsetY, &tileSpriteClips[tile_clear]);
+                                tileSpriteSheetTexture.render((tablaX + xdif) * 16 + borderWidth, \
+                                (tablaY + ydif) * 16 + 2 * borderHeight + topHeight, &tileSpriteClips[tile_clear]);
                             }
                         }
                     }
@@ -309,4 +350,33 @@ ManagerJoc::tiles ManagerJoc::getTileSprite(Patratel p)
         return tile_8;
     }
     return tile_covered;
+}
+
+void ManagerJoc::renderBorder()
+{
+    int latimeTabla = t.getLatime() * 16, inaltimeTabla = t.getInaltime() * 16;
+
+    borderSpriteSheetTexture.render(0, 0, &borderSpriteClips[border_top_left]);
+    borderSpriteSheetTexture.render(borderWidth + latimeTabla, 0, &borderSpriteClips[border_top_right]);
+    borderSpriteSheetTexture.render(0, 2 * borderHeight + topHeight + inaltimeTabla, &borderSpriteClips[border_bottom_left]);
+    borderSpriteSheetTexture.render(borderWidth + latimeTabla, 2 * borderHeight + topHeight + inaltimeTabla, &borderSpriteClips[border_bottom_right]);
+
+    borderSpriteSheetTexture.render(0, borderHeight + topHeight, &borderSpriteClips[border_vertical_right]);
+    borderSpriteSheetTexture.render(borderWidth + latimeTabla, borderHeight + topHeight, &borderSpriteClips[border_vertical_left]);
+
+    for (int x = borderWidth; x < borderWidth + latimeTabla; x += borderWidth) {
+        borderSpriteSheetTexture.render(x, 0, &borderSpriteClips[border_horizontal]);
+        borderSpriteSheetTexture.render(x, borderHeight + topHeight, &borderSpriteClips[border_horizontal]);
+        borderSpriteSheetTexture.render(x, 2 * borderHeight + topHeight + inaltimeTabla, &borderSpriteClips[border_horizontal]);
+    }
+
+    for (int y = borderHeight; y < borderHeight + topHeight; y += borderHeight) {
+        borderSpriteSheetTexture.render(0, y, &borderSpriteClips[border_vertical]);
+        borderSpriteSheetTexture.render(borderWidth + latimeTabla, y, &borderSpriteClips[border_vertical]);
+    }
+
+    for (int y = 2 * borderHeight + topHeight; y < 2 * borderHeight + topHeight + inaltimeTabla; y += borderHeight) {
+        borderSpriteSheetTexture.render(0, y, &borderSpriteClips[border_vertical]);
+        borderSpriteSheetTexture.render(borderWidth + latimeTabla, y, &borderSpriteClips[border_vertical]);
+    }
 }

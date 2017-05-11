@@ -45,12 +45,41 @@ public:
         smiley_normal,
         smiley_surprised,
         smiley_nice,
-        smiley_dead
+        smiley_dead,
+        smiley_unpressed,
+        smiley_pressed
+    };
+
+    enum border_sprites
+    {
+        border_horizontal,
+        border_vertical,
+        border_vertical_right,
+        border_vertical_left,
+        border_top_left,
+        border_top_right,
+        border_bottom_right,
+        border_bottom_left
+    };
+
+    enum number_sprites
+    {
+        number_0,
+        number_1,
+        number_2,
+        number_3,
+        number_4,
+        number_5,
+        number_6,
+        number_7,
+        number_8,
+        number_9,
+        number_minus
     };
 
     static Tabla t;
 
-    static int offsetX, offsetY;
+    static int offsetX, offsetY, borderHeight, borderWidth, topHeight;
 
     static void start();
 
@@ -69,6 +98,8 @@ public:
     //Frees media and shuts down SDL
     static void close();
 
+    static void renderBorder();
+
     //The window we'll be rendering to
     static SDL_Window* gWindow;
 
@@ -76,8 +107,8 @@ public:
     static SDL_Renderer* gRenderer;
 
     //Scene sprites
-    static SDL_Rect tileSpriteClips[15], smileySpriteClips[4];
-    static LTexture tileSpriteSheetTexture, smileySpriteSheetTexture;
+    static SDL_Rect tileSpriteClips[15], smileySpriteClips[6], borderSpriteClips[8], numberSpriteClips[11];
+    static LTexture tileSpriteSheetTexture, smileySpriteSheetTexture, borderSpriteSheetTexture, numberSpriteSheetTexture;
 };
 
 #endif // MANAGERJOC_H
